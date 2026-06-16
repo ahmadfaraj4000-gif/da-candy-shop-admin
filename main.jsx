@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import App from "./src/App.jsx";
 import "./src/styles.css";
@@ -10,7 +10,7 @@ const client = convexUrl ? new ConvexReactClient(convexUrl) : null;
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <HashRouter>
       {client ? (
         <ConvexProvider client={client}>
           <App />
@@ -18,6 +18,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       ) : (
         <App missingConvexUrl />
       )}
-    </BrowserRouter>
+    </HashRouter>
   </React.StrictMode>
 );
