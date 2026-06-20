@@ -10,12 +10,15 @@ export default function InventoryTable({ inventory, onEdit, onDelete }) {
       <table>
         <thead>
           <tr>
-            <th>Name</th><th>Type</th><th>Price</th><th>THC</th><th>CBD</th><th>Potency</th><th>Inventory Quantity</th><th>Featured</th><th>Actions</th>
+            <th>Image</th><th>Name</th><th>Type</th><th>Price</th><th>THC</th><th>CBD</th><th>Potency</th><th>Inventory Quantity</th><th>Featured</th><th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {inventory.map(strain => (
             <tr key={strain._id}>
+              <td data-label="Image">
+                {strain.image ? <img className="inventory-thumb" src={strain.image} alt={strain.name} /> : <span className="muted">No image</span>}
+              </td>
               <td data-label="Name">{strain.name}</td>
               <td data-label="Type">{strain.strainType}</td>
               <td data-label="Price">{money(strain.price)}</td>
