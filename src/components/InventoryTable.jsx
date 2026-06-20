@@ -1,6 +1,12 @@
 import { Edit, Trash2 } from "lucide-react";
 import { money } from "../lib/format.js";
 
+function imageSrc(image) {
+  if (!image) return "";
+  if (image.startsWith("assets/")) return `../${image}`;
+  return image;
+}
+
 export default function InventoryTable({ inventory, onEdit, onDelete }) {
   if (inventory === undefined) return <div className="state-card">Loading inventory...</div>;
   if (!inventory.length) return <div className="state-card">No strains match the current filters.</div>;
@@ -17,7 +23,7 @@ export default function InventoryTable({ inventory, onEdit, onDelete }) {
           {inventory.map(strain => (
             <tr key={strain._id}>
               <td data-label="Image">
-                {strain.image ? <img className="inventory-thumb" src={strain.image} alt={strain.name} /> : <span className="muted">No image</span>}
+                {strain.image ? <img className="inventory-thumb" src={imageSrc(strain.image)} alt={strain.name} /> : <span className="muted">No image</span>}
               </td>
               <td data-label="Name">{strain.name}</td>
               <td data-label="Type">{strain.strainType}</td>
