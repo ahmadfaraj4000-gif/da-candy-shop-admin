@@ -646,6 +646,31 @@ td.actions .icon-button {
   border-color: rgba(255, 177, 61, .36);
 }
 
+.inventory-thumb {
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  object-fit: cover;
+  background: #000;
+}
+
+.image-preview {
+  width: 100%;
+  padding: .5rem;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  background: rgba(0,0,0,.28);
+}
+
+.image-preview img {
+  width: 100%;
+  max-height: 220px;
+  border-radius: 6px;
+  object-fit: cover;
+  background: #000;
+}
+
 /* Mobile admin optimization only; desktop styles above stay unchanged. */
 @media (max-width: 720px) {
   body {
