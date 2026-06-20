@@ -1,4 +1,4 @@
-import { LogOut, Package, ShoppingBag } from "lucide-react";
+import { CreditCard, LogOut, Package, ShoppingBag } from "lucide-react";
 
 export default function Navbar({ activeTab, onTabChange, onLogout }) {
   return (
@@ -13,6 +13,9 @@ export default function Navbar({ activeTab, onTabChange, onLogout }) {
         </button>
         <button className={activeTab === "inventory" ? "active" : ""} onClick={() => onTabChange("inventory")}>
           <Package size={18} /> Inventory
+        </button>
+        <button className={activeTab === "payments" ? "active" : ""} onClick={() => onTabChange("payments")}>
+          <CreditCard size={18} /> QR Payments
         </button>
       </nav>
       <button className="icon-button" onClick={onLogout} title="Log out"><LogOut size={18} /></button>

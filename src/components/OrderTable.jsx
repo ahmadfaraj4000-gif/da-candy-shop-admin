@@ -12,28 +12,35 @@ export default function OrderTable({ orders, onView, onStatus, onDelete }) {
       <table>
         <thead>
           <tr>
-            <th>Order Number</th><th>Customer Name</th><th>Phone</th><th>Pickup Date</th><th>Pickup Time</th><th>Products Ordered</th><th>Quantities</th><th>Total</th><th>Status</th><th>Actions</th>
+            <th>Order Number</th><th>Customer Name</th><th>Phone</th><th>Pickup Date</th><th>Pickup Time</th><th>Products Ordered</th><th>Quantities</th><th>Total</th><th>Payment</th><th>Status</th><th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {orders.map(order => (
             <tr key={order._id}>
-              <td>{order.orderNumber}</td>
-              <td>{order.customerName}</td>
-              <td>{order.phone}</td>
-              <td>{order.pickupDate}</td>
-              <td>{order.pickupTime}</td>
-              <td>{order.items?.map(item => item.name).join(", ")}</td>
-              <td>{order.items?.map(item => item.quantity).join(", ")}</td>
-              <td>{money(order.total)}</td>
-              <td>
+              <td data-label="Order">{order.orderNumber}</td>
+              <td data-label="Customer">{order.customerName}</td>
+              <td data-label="Phone">{order.phone}</td>
+              <td data-label="Pickup Date">{order.pickupDate}</td>
+              <td data-label="Pickup Time">{order.pickupTime}</td>
+              <td data-label="Products">{order.items?.map(item => item.name).join(", ")}</td>
+              <td data-label="Quantities">{order.items?.map(item => item.quantity).join(", ")}</td>
+              <td data-label="Total">{money(order.total)}</td>
+              <td data-label="Payment">
+                <span className={`payment-status ${order.paymentStatus || "pending"}`}>
+                  {order.paymentMethod === "stripe" ? "Online" : "Store"} - {order.paymentStatus || "pending"}
+                </span>
+              </td>
+              <td data-label="Status">
                 <select value={order.status} onChange={event => onStatus(order._id, event.target.value)}>
                   {statuses.map(status => <option key={status}>{status}</option>)}
                 </select>
               </td>
               <td className="actions">
-                <button className="icon-button" onClick={() => onView(order)} title="View order"><Eye size={17} /></button>
-                <button className="icon-button danger" onClick={() => onDelete(order._id)} title="Delete order"><Trash2 size={17} /></button>
+                <div className="action-group">
+                  <button className="icon-button" onClick={() => onView(order)} title="View order"><Eye size={17} /></button>
+                  <button className="icon-button danger" onClick={() => onDelete(order._id)} title="Delete order"><Trash2 size={17} /></button>
+                </div>
               </td>
             </tr>
           ))}

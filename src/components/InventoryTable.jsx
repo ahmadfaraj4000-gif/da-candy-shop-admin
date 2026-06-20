@@ -16,17 +16,19 @@ export default function InventoryTable({ inventory, onEdit, onDelete }) {
         <tbody>
           {inventory.map(strain => (
             <tr key={strain._id}>
-              <td>{strain.name}</td>
-              <td>{strain.strainType}</td>
-              <td>{money(strain.price)}</td>
-              <td>{strain.thc}%</td>
-              <td>{strain.cbd}%</td>
-              <td>{strain.potency}</td>
-              <td>{strain.quantity}</td>
-              <td>{strain.featured ? "Yes" : "No"}</td>
+              <td data-label="Name">{strain.name}</td>
+              <td data-label="Type">{strain.strainType}</td>
+              <td data-label="Price">{money(strain.price)}</td>
+              <td data-label="THC">{strain.thc}%</td>
+              <td data-label="CBD">{strain.cbd}%</td>
+              <td data-label="Potency">{strain.potency}</td>
+              <td data-label="Quantity">{strain.quantity}</td>
+              <td data-label="Featured">{strain.featured ? "Yes" : "No"}</td>
               <td className="actions">
-                <button className="icon-button" onClick={() => onEdit(strain)} title="Edit strain"><Edit size={17} /></button>
-                <button className="icon-button danger" onClick={() => onDelete(strain._id)} title="Delete strain"><Trash2 size={17} /></button>
+                <div className="action-group">
+                  <button className="icon-button" onClick={() => onEdit(strain)} title="Edit strain"><Edit size={17} /></button>
+                  <button className="icon-button danger" onClick={() => onDelete(strain._id)} title="Delete strain"><Trash2 size={17} /></button>
+                </div>
               </td>
             </tr>
           ))}
