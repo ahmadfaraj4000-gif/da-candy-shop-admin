@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { makeFunctionReference } from "convex/server";
 import Navbar from "../components/Navbar.jsx";
@@ -13,7 +13,7 @@ import { useToast } from "../components/Toast.jsx";
 import { money } from "../lib/format.js";
 import { useDebounce } from "../hooks/useDebounce.js";
 
-const blankStrain = { name: "", strainType: "Hybrid", price: 10, thc: 20, cbd: 1, potency: "Medium", description: "", image: "", quantity: 10, featured: false };
+const blankStrain = { name: "", strainType: "Hybrid", price: 10, onlinePrice: 10, potency: "Medium", description: "", image: "", available: true };
 const convexApi = {
   orders: {
     listOrders: makeFunctionReference("orders:listOrders"),
@@ -40,14 +40,19 @@ function imageFileToDataUrl(file) {
       const image = new Image();
       image.onerror = () => reject(new Error("Image could not be loaded."));
       image.onload = () => {
-        const maxSize = 900;
+        const maxSize = 600;
         const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
         const canvas = document.createElement("canvas");
         canvas.width = Math.max(1, Math.round(image.width * scale));
         canvas.height = Math.max(1, Math.round(image.height * scale));
         const context = canvas.getContext("2d");
         context.drawImage(image, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/webp", 0.82));
+        const dataUrl = canvas.toDataURL("image/webp", 0.72);
+        if (dataUrl.length > 700000) {
+          reject(new Error("Image is too large. Try a smaller photo."));
+          return;
+        }
+        resolve(dataUrl);
       };
       image.src = reader.result;
     };
@@ -61,6 +66,11 @@ function imageSrc(image) {
   return image;
 }
 
+function numberFromForm(value, fallback = 0) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
 export default function Dashboard({ onLogout }) {
   const [activeTab, setActiveTab] = useState("orders");
   const [search, setSearch] = useState("");
@@ -68,6 +78,7 @@ export default function Dashboard({ onLogout }) {
   const [type, setType] = useState("");
   const [viewOrder, setViewOrder] = useState(null);
   const [editing, setEditing] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
   const toast = useToast();
   const debouncedSearch = useDebounce(search);
 
@@ -80,6 +91,10 @@ export default function Dashboard({ onLogout }) {
   const deleteOrder = useMutation(convexApi.orders.deleteOrder);
   const upsertStrain = useMutation(convexApi.inventory.upsertStrain);
   const deleteStrain = useMutation(convexApi.inventory.deleteStrain);
+
+  useEffect(() => {
+    setImagePreview(editing?.image || "");
+  }, [editing]);
 
   const metrics = useMemo(() => {
     const orderList = orders || [];
@@ -114,24 +129,44 @@ export default function Dashboard({ onLogout }) {
     const formElement = event.currentTarget;
     const formData = new FormData(formElement);
     const form = Object.fromEntries(formData);
-    const uploadedImage = await imageFileToDataUrl(formData.get("imageFile"));
-    const image = uploadedImage || String(form.image || "").trim();
+    const submitButton = formElement.querySelector("button[type='submit']");
+    submitButton.disabled = true;
+    submitButton.textContent = "Saving...";
 
-    await upsertStrain({
-      id: editing?._id,
-      name: form.name,
-      strainType: form.strainType,
-      description: form.description,
-      image,
-      potency: form.potency,
-      price: 10,
-      thc: Number(form.thc),
-      cbd: Number(form.cbd),
-      quantity: Number(form.quantity),
-      featured: form.featured === "on"
-    });
-    setEditing(null);
-    toast.push("Inventory saved.");
+    try {
+      const pickupPrice = numberFromForm(form.price);
+      const onlinePrice = numberFromForm(form.onlinePrice, pickupPrice);
+      const uploadedImage = await imageFileToDataUrl(formData.get("imageFile"));
+      const image = uploadedImage || String(form.image || "").trim() || editing?.image || "";
+
+      await upsertStrain({
+        id: editing?._id,
+        name: form.name,
+        strainType: form.strainType,
+        description: form.description,
+        image,
+        potency: form.potency,
+        price: pickupPrice,
+        onlinePrice,
+        available: form.available === "on"
+      });
+      setEditing(null);
+      toast.push("Inventory saved.");
+    } catch (error) {
+      toast.push(error.message || "Inventory could not be saved.", "error");
+      submitButton.disabled = false;
+      submitButton.textContent = "Save Strain";
+    }
+  }
+
+  async function handleImageFileChange(event) {
+    try {
+      const preview = await imageFileToDataUrl(event.target.files?.[0]);
+      if (preview) setImagePreview(preview);
+    } catch (error) {
+      toast.push(error.message || "Image could not be previewed.", "error");
+      event.target.value = "";
+    }
   }
 
   function handleTabChange(tab) {
@@ -192,20 +227,18 @@ export default function Dashboard({ onLogout }) {
           <form className="strain-form" onSubmit={saveStrain}>
             <label>Name <input name="name" defaultValue={editing.name} required /></label>
             <label>Type <select name="strainType" defaultValue={editing.strainType}><option>Indica</option><option>Sativa</option><option>Hybrid</option></select></label>
-            <label>Price <input name="price" type="number" step="0.01" min="10" max="10" defaultValue={10} readOnly required /></label>
-            <label>THC <input name="thc" type="number" step="0.1" min="0" defaultValue={editing.thc} required /></label>
-            <label>CBD <input name="cbd" type="number" step="0.1" min="0" defaultValue={editing.cbd} required /></label>
+            <label>Pickup Price <input name="price" type="number" step="0.01" min="0.01" defaultValue={editing.price} required /></label>
+            <label>Online Price <input name="onlinePrice" type="number" step="0.01" min="0.01" defaultValue={editing.onlinePrice ?? editing.price} required /></label>
             <label>Potency <select name="potency" defaultValue={editing.potency}><option>Low</option><option>Medium</option><option>High</option></select></label>
-            <label>Image URL <input name="image" defaultValue={editing.image} placeholder="Paste image URL or upload below" /></label>
-            <label>Upload Image <input name="imageFile" type="file" accept="image/*" /></label>
-            {editing.image && (
+            <label>Image URL <input name="image" defaultValue={editing.image?.startsWith("data:") ? "" : editing.image} placeholder="Paste image URL or upload below" /></label>
+            <label>Upload Image <input name="imageFile" type="file" accept="image/*" onChange={handleImageFileChange} /></label>
+            {imagePreview && (
               <div className="image-preview wide">
-                <img src={imageSrc(editing.image)} alt={`${editing.name || "Strain"} preview`} />
+                <img src={imageSrc(imagePreview)} alt={`${editing.name || "Strain"} preview`} />
               </div>
             )}
-            <label>Inventory Quantity <input name="quantity" type="number" min="0" defaultValue={editing.quantity} required /></label>
+            <label className="checkbox-row"><input name="available" type="checkbox" defaultChecked={editing.available ?? Number(editing.quantity ?? 0) > 0} /> Available</label>
             <label className="wide">Description <textarea name="description" rows="4" defaultValue={editing.description} required /></label>
-            <label className="checkbox-row"><input name="featured" type="checkbox" defaultChecked={editing.featured} /> Featured Toggle</label>
             <button className="primary-button wide" type="submit">Save Strain</button>
           </form>
         </Modal>
