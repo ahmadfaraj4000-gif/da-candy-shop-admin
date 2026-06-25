@@ -16,7 +16,7 @@ export default function InventoryTable({ inventory, onEdit, onDelete }) {
       <table>
         <thead>
           <tr>
-            <th>Image</th><th>Name</th><th>Type</th><th>Pickup Price</th><th>Online Price</th><th>Potency</th><th>Availability</th><th>Actions</th>
+            <th>Image</th><th>Name</th><th>Type</th><th>Grams</th><th>Pickup Price</th><th>Online Price</th><th>Potency</th><th>Availability</th><th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -27,6 +27,7 @@ export default function InventoryTable({ inventory, onEdit, onDelete }) {
               </td>
               <td data-label="Name">{strain.name}</td>
               <td data-label="Type">{strain.strainType}</td>
+              <td data-label="Grams">{Number(strain.grams ?? 3.5)}g</td>
               <td data-label="Pickup Price">{money(strain.price)}</td>
               <td data-label="Online Price">{money(strain.onlinePrice ?? strain.price)}</td>
               <td data-label="Potency">{strain.potency}</td>
