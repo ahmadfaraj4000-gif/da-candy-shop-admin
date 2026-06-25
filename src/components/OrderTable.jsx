@@ -3,6 +3,21 @@ import { money } from "../lib/format.js";
 
 const statuses = ["Pending", "Ready", "Completed", "Cancelled"];
 
+function promoText(order) {
+  if (!order.promo) return "-";
+  const parts = [order.promo.label];
+
+  if (order.promo.discountAmount) parts.push(`${money(order.promo.discountAmount)} discount`);
+  if (order.promo.extraGram) parts.push("add extra 1g");
+  if (order.promo.extraEighth) parts.push("add free 1/8th");
+  if (order.paymentMethod === "pay_at_store") parts.push("store purchase required");
+  if (order.paymentMethod === "stripe" && order.paymentStatus === "paid" && order.promo.discountAmount) parts.push("discount applied online");
+  if (order.paymentMethod === "stripe" && order.paymentStatus === "paid" && (order.promo.extraGram || order.promo.extraEighth)) parts.push("paid online; give reward at pickup");
+  if (order.paymentMethod === "stripe" && order.paymentStatus !== "paid") parts.push("online checkout pending");
+
+  return parts.join(" - ");
+}
+
 export default function OrderTable({ orders, onView, onStatus, onDelete }) {
   if (orders === undefined) return <div className="state-card">Loading orders...</div>;
   if (!orders.length) return <div className="state-card">No orders match the current filters.</div>;
@@ -25,7 +40,7 @@ export default function OrderTable({ orders, onView, onStatus, onDelete }) {
               <td data-label="Pickup Time">{order.pickupTime}</td>
               <td data-label="Products">{order.items?.map(item => item.name).join(", ")}</td>
               <td data-label="Quantities">{order.items?.map(item => item.quantity).join(", ")}</td>
-              <td data-label="Promo">{order.promo?.label || "-"}</td>
+              <td data-label="Promo">{promoText(order)}</td>
               <td data-label="Total">{money(order.total)}</td>
               <td data-label="Payment">
                 <span className={`payment-status ${order.paymentStatus || "pending"}`}>
