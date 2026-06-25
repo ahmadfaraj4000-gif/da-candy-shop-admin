@@ -206,6 +206,50 @@ td { color: var(--muted); }
 .detail-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: .8rem; }
 .detail-list p { display: grid; color: var(--muted); }
 .detail-list strong { color: var(--text); }
+.delete-confirm {
+  display: grid;
+  gap: .85rem;
+}
+.delete-confirm-kicker {
+  width: fit-content;
+  margin: 0;
+  padding: .28rem .62rem;
+  border: 1px solid rgba(255,177,61,.42);
+  border-radius: 999px;
+  color: #ffd28a;
+  background: rgba(255,177,61,.1);
+  font-weight: 850;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-size: .76rem;
+}
+.delete-confirm h3 {
+  margin: 0;
+  color: var(--cream);
+  font-size: 1.55rem;
+}
+.delete-confirm p {
+  margin: 0;
+  color: var(--muted);
+}
+.delete-confirm p strong {
+  color: var(--text);
+}
+.delete-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .65rem;
+  flex-wrap: wrap;
+  padding-top: .45rem;
+}
+.danger-action {
+  background: linear-gradient(180deg, #9b332f, #6d1d1a) !important;
+  border-color: rgba(255,177,61,.42) !important;
+  color: #fff !important;
+}
+.danger-action:hover {
+  background: linear-gradient(180deg, #b4413c, #812420) !important;
+}
 .toast-stack { position: fixed; right: 1rem; bottom: 1rem; z-index: 50; display: grid; gap: .5rem; }
 .toast { padding: .85rem 1rem; border-radius: 14px; background: #151515; border: 1px solid rgba(248,223,0,.42); color: var(--text); box-shadow: 0 10px 35px rgba(0,0,0,.35); }
 .admin-footer { padding: 1rem 2rem 2rem; }
