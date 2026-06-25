@@ -12,7 +12,7 @@ export default function OrderTable({ orders, onView, onStatus, onDelete }) {
       <table>
         <thead>
           <tr>
-            <th>Order Number</th><th>Customer Name</th><th>Phone</th><th>Pickup Date</th><th>Pickup Time</th><th>Products Ordered</th><th>Quantities</th><th>Total</th><th>Payment</th><th>Status</th><th>Actions</th>
+            <th>Order Number</th><th>Customer Name</th><th>Phone</th><th>Pickup Date</th><th>Pickup Time</th><th>Products Ordered</th><th>Quantities</th><th>Promo</th><th>Total</th><th>Payment</th><th>Status</th><th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -25,6 +25,7 @@ export default function OrderTable({ orders, onView, onStatus, onDelete }) {
               <td data-label="Pickup Time">{order.pickupTime}</td>
               <td data-label="Products">{order.items?.map(item => item.name).join(", ")}</td>
               <td data-label="Quantities">{order.items?.map(item => item.quantity).join(", ")}</td>
+              <td data-label="Promo">{order.promo?.label || "-"}</td>
               <td data-label="Total">{money(order.total)}</td>
               <td data-label="Payment">
                 <span className={`payment-status ${order.paymentStatus || "pending"}`}>
@@ -39,7 +40,7 @@ export default function OrderTable({ orders, onView, onStatus, onDelete }) {
               <td className="actions">
                 <div className="action-group">
                   <button className="icon-button" onClick={() => onView(order)} title="View order"><Eye size={17} /></button>
-                  <button className="icon-button danger" onClick={() => onDelete(order._id)} title="Delete order"><Trash2 size={17} /></button>
+                  <button className="icon-button danger" onClick={() => onDelete(order)} title="Delete order"><Trash2 size={17} /></button>
                 </div>
               </td>
             </tr>
