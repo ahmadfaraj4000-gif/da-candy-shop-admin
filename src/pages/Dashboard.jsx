@@ -13,7 +13,7 @@ import { useToast } from "../components/Toast.jsx";
 import { money } from "../lib/format.js";
 import { useDebounce } from "../hooks/useDebounce.js";
 
-const blankStrain = { name: "", strainType: "Hybrid", price: 10, onlinePrice: 10, grams: 3.5, potency: "Medium", description: "", image: "", available: true };
+const blankStrain = { name: "", strainType: "Hybrid", price: 10, onlinePrice: 10, grams: 3.5, potency: "Medium", description: "", image: "", available: true, featured: false };
 const convexApi = {
   orders: {
     listOrders: makeFunctionReference("orders:listOrders"),
@@ -323,7 +323,8 @@ export default function Dashboard({ adminToken, onLogout }) {
         price: pickupPrice,
         onlinePrice,
         grams,
-        available: form.available === "on"
+        available: form.available === "on",
+        featured: form.featured === "on"
       });
       setEditing(null);
       toast.push("Inventory saved.");
@@ -553,6 +554,7 @@ export default function Dashboard({ adminToken, onLogout }) {
               </div>
             )}
             <label className="checkbox-row"><input name="available" type="checkbox" defaultChecked={editing.available ?? Number(editing.quantity ?? 0) > 0} /> Available</label>
+            <label className="checkbox-row"><input name="featured" type="checkbox" defaultChecked={editing.featured ?? false} /> Featured on homepage</label>
             <label className="wide">Description <textarea name="description" rows="4" defaultValue={editing.description} required /></label>
             <button className="primary-button wide" type="submit">Save Strain</button>
           </form>
