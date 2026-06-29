@@ -1,10 +1,11 @@
-import { useCallback, useState } from "react";
-import { useMutation } from "convex/react";
+import { useCallback, useEffect, useState } from "react";
+import { useMutation, useQuery } from "convex/react";
 import { makeFunctionReference } from "convex/server";
 
 const AUTH_KEY = "dcs-admin-session";
 const authApi = {
   login: makeFunctionReference("adminAuth:login"),
+  validateSession: makeFunctionReference("adminAuth:validateSession"),
   logout: makeFunctionReference("adminAuth:logout")
 };
 
@@ -16,8 +17,16 @@ export function useAuth() {
       return null;
     }
   });
+  const isSessionValid = useQuery(authApi.validateSession, session?.token ? { adminToken: session.token } : "skip");
   const loginMutation = useMutation(authApi.login);
   const logoutMutation = useMutation(authApi.logout);
+
+  useEffect(() => {
+    if (isSessionValid === false) {
+      localStorage.removeItem(AUTH_KEY);
+      setSession(null);
+    }
+  }, [isSessionValid]);
 
   const login = useCallback(async (email, password) => {
     try {
@@ -50,5 +59,8 @@ export function useAuth() {
     setSession(null);
   }, [logoutMutation, session?.token]);
 
-  return { isAuthed: Boolean(session?.token), token: session?.token || "", login, logout };
+  const isCheckingSession = Boolean(session?.token && isSessionValid === undefined);
+  const isAuthed = Boolean(session?.token && isSessionValid !== false);
+
+  return { isAuthed, isCheckingSession, token: session?.token || "", login, logout };
 }
