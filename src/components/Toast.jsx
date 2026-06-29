@@ -6,7 +6,7 @@ export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([]);
   const api = useMemo(() => ({
     push(message, tone = "success") {
-      const id = crypto.randomUUID();
+      const id = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
       setToasts(current => [...current, { id, message, tone }]);
       window.setTimeout(() => setToasts(current => current.filter(toast => toast.id !== id)), 3200);
     }
