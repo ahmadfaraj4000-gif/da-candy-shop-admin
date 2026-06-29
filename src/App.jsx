@@ -15,13 +15,30 @@ export default function App({ missingConvexUrl = false }) {
         </div>
       )}
       <Routes>
-        <Route path="/" element={auth.isAuthed ? <Navigate to="/dashboard" /> : <Login onLogin={auth.login} />} />
+        <Route path="/" element={auth.isCheckingSession ? <LoadingSession /> : auth.isAuthed ? <Navigate to="/dashboard" /> : <Login onLogin={auth.login} />} />
         <Route
           path="/dashboard"
-          element={auth.isAuthed ? (missingConvexUrl ? <ConvexSetup onLogout={auth.logout} /> : <Dashboard adminToken={auth.token} onLogout={auth.logout} />) : <Navigate to="/" />}
+          element={
+            auth.isCheckingSession
+              ? <LoadingSession />
+              : auth.isAuthed
+              ? (missingConvexUrl ? <ConvexSetup onLogout={auth.logout} /> : <Dashboard adminToken={auth.token} onLogout={auth.logout} />)
+              : <Navigate to="/" />
+          }
         />
       </Routes>
     </ToastProvider>
+  );
+}
+
+function LoadingSession() {
+  return (
+    <main className="login-page">
+      <section className="login-card">
+        <h1>Checking Session</h1>
+        <p className="muted">One moment while the admin session is verified.</p>
+      </section>
+    </main>
   );
 }
 
